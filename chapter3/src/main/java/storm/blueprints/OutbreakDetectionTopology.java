@@ -48,7 +48,7 @@ public class OutbreakDetectionTopology {
 				new OutbreakDetector(), //
 				new Fields("alert"))//
 		;
-		inputStream = inputStream.each(new Fields(), //
+		inputStream = inputStream.each(new Fields("alert"), //
 				new DispatchAlert(), //
 				new Fields())//
 		;

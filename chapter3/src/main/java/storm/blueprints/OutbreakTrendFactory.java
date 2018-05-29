@@ -15,7 +15,6 @@ public class OutbreakTrendFactory implements StateFactory{
 
 	@Override
 	public State makeState(Map conf, IMetricsContext metrics, int partitionIndex, int numPartitions) {
-		// TODO Auto-generated method stub
 		return new OutbreakTrendState(new OutbreakTrendBackingMap());
 	}
 

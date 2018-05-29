@@ -52,7 +52,8 @@ public class CityAssignment extends BaseFunction {
 		values.add(closestCity);
 		LOG.debug("Closest city to lat=[{}],lng=[{}] == [{}],d=[{}]", //
 				diagnosis.lat, diagnosis.lng, closestCity, leastDistance);
-
+		collector.emit(values);
+		
 	}
 
 }
