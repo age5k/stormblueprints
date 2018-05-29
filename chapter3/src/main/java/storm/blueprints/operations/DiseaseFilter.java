@@ -1,9 +1,11 @@
-package storm.blueprints;
+package storm.blueprints.operations;
 
 import org.apache.storm.trident.operation.BaseFilter;
 import org.apache.storm.trident.tuple.TridentTuple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import storm.blueprints.DiagnosisEvent;
 
 public class DiseaseFilter extends BaseFilter {
 
@@ -13,12 +15,12 @@ public class DiseaseFilter extends BaseFilter {
 	@Override
 	public boolean isKeep(TridentTuple tuple) {
 		DiagnosisEvent diagnosis = (DiagnosisEvent) tuple.getValue(0);
-		Integer code = Integer.parseInt(diagnosis.getDiagnosisCode());
+		Integer code = Integer.parseInt(diagnosis.diagnosisCode);
 		if (code.intValue() <= 322) {
-			LOG.debug("Emitting disease[{}]", diagnosis.getDiagnosisCode());
+			LOG.debug("Emitting disease[{}]", diagnosis.diagnosisCode);
 			return true;
 		} else {
-			LOG.debug("Filtering disease[{}]", diagnosis.getDiagnosisCode());
+			LOG.debug("Filtering disease[{}]", diagnosis.diagnosisCode);
 			return false;
 		}
 	}
