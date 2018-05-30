@@ -51,7 +51,9 @@ public class KafkaAppender extends AppenderBase<ILoggingEvent> {
 		super.start();
 		Properties props = new Properties();
 		props.put("zk.connect", this.zookeeperHost);
-		props.put("serializer.class", "kafka.serializer.StringEncoder");
+		//props.put("serializer.class", "kafka.serializer.StringEncoder");
+		props.put("key.serializer", org.apache.kafka.common.serialization.StringSerializer.class.getName());
+		props.put("value.serializer", org.apache.kafka.common.serialization.StringSerializer.class.getName());
 
 		this.producer = new KafkaProducer<String, String>(props);
 	}
