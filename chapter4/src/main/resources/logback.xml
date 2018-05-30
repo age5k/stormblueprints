@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-	<appender name="KAFKA"
-		class="chapter4.logback.KafkaAppender">
+	<appender name="KAFKA" class="chapter4.logback.KafkaAppender">
 		<topic>log-analysis</topic>
-		<zookeeperHost>192.168.88.130:2181</zookeeperHost>
+		<!-- <zookeeperHost>192.168.88.130:2181</zookeeperHost> -->
+		<zookeeperHost>192.168.110.128:2181</zookeeperHost>
+		<bootstrapServers>192.168.110.128:9092</bootstrapServers>
 		<formatter class="chapter4.logback.JsonFormatter">
 			<!-- Whether we expect the log message to be JSON encoded or not. If set 
 				to "false", the log message will be treated as a string, and wrapped in quotes. 
@@ -11,19 +12,19 @@
 			<expectJson>false</expectJson>
 		</formatter>
 	</appender>
-	<append name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+			<charset>UTF-8</charset>
+			<Pattern>%d %-4relative [%thread] %-5level %logger{35} - %msg%n</Pattern>
 		</encoder>
-	</append>
+	</appender>
+
 	<root level="debug">
+		<appender-ref ref="STDOUT" />
 		<appender-ref ref="KAFKA" />
 	</root>
-	<logger name="com.cjie.storm.trident.trend.RogueApplication"
-		additivity="false">
-		<level value="DEBUG" />
-		<appender-ref ref="CONSOLE" />
-		<appender-ref ref="KAFKA" />
 
+	<logger name="chapter4" additivity="false">
+		<level value="DEBUG" />
 	</logger>
 </configuration>

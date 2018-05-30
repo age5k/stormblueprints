@@ -14,6 +14,15 @@ import chapter4.MessageFormatter;
 public class KafkaAppender extends AppenderBase<ILoggingEvent> {
 	private String topic;
 	private String zookeeperHost;
+	private String bootstrapServers;
+	public String getBootstrapServers() {
+		return bootstrapServers;
+	}
+
+	public void setBootstrapServers(String bootstrapServers) {
+		this.bootstrapServers = bootstrapServers;
+	}
+
 	private Producer<String, String> producer;
 	private Formatter formatter;
 
@@ -51,6 +60,7 @@ public class KafkaAppender extends AppenderBase<ILoggingEvent> {
 		super.start();
 		Properties props = new Properties();
 		props.put("zk.connect", this.zookeeperHost);
+		props.put("bootstrap.servers", bootstrapServers);
 		//props.put("serializer.class", "kafka.serializer.StringEncoder");
 		props.put("key.serializer", org.apache.kafka.common.serialization.StringSerializer.class.getName());
 		props.put("value.serializer", org.apache.kafka.common.serialization.StringSerializer.class.getName());
