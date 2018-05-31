@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -58,12 +59,11 @@ public class KafkaAppender extends AppenderBase<ILoggingEvent> {
 			this.formatter = new MessageFormatter();
 		}
 		super.start();
-		Properties props = new Properties();
-		props.put("zk.connect", this.zookeeperHost);
-		props.put("bootstrap.servers", bootstrapServers);
-		//props.put("serializer.class", "kafka.serializer.StringEncoder");
-		props.put("key.serializer", org.apache.kafka.common.serialization.StringSerializer.class.getName());
-		props.put("value.serializer", org.apache.kafka.common.serialization.StringSerializer.class.getName());
+		Properties props = new Properties();		
+		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+		props.put(ProducerConfig.CLIENT_ID_CONFIG, "logback-kafka-appender");
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class.getName());
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class.getName());
 
 		this.producer = new KafkaProducer<String, String>(props);
 	}
@@ -76,7 +76,7 @@ public class KafkaAppender extends AppenderBase<ILoggingEvent> {
 
 	@Override
 	protected void append(ILoggingEvent event) {
-		String payload = this.formatter.format(event);
+		String payload = this.formatter.format(event);		
 		ProducerRecord<String, String> data = new ProducerRecord<String, String>(this.topic, payload);
 		this.producer.send(data);
 	}

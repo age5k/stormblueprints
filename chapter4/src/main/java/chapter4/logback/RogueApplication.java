@@ -1,4 +1,4 @@
-package chapter4;
+package chapter4.logback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
