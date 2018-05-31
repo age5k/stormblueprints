@@ -4,7 +4,7 @@
 		<topic>log-analysis</topic>
 		<!-- <zookeeperHost>192.168.88.130:2181</zookeeperHost> -->
 		<zookeeperHost>192.168.110.128:2181</zookeeperHost>
-		<bootstrapServers>192.168.110.128:9092</bootstrapServers>
+		<bootstrapServers>192.168.110.128:2181</bootstrapServers>
 		<formatter class="chapter4.logback.JsonFormatter">
 			<!-- Whether we expect the log message to be JSON encoded or not. If set 
 				to "false", the log message will be treated as a string, and wrapped in quotes. 
