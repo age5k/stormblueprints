@@ -20,13 +20,9 @@ public class XMPPFunction extends BaseFunction {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger LOG = LoggerFactory.getLogger(XMPPFunction.class);
-	public static final String XMPP_TO = "storm.xmpp.to";
-	public static final String XMPP_USER = "storm.xmpp.user";
-	public static final String XMPP_PASSWORD = "storm.xmpp.password";
-	public static final String XMPP_SERVER = "storm.xmpp.server";
-	private XMPPConnection xmppConnection;
-	private String to;
+
 	private MessageMapper mapper;
+	private XMPP xmpp;
 
 	public XMPPFunction(MessageMapper mapper) {
 		this.mapper = mapper;
@@ -36,20 +32,69 @@ public class XMPPFunction extends BaseFunction {
 	public void prepare(Map conf, TridentOperationContext context) {
 		LOG.debug("Prepare: {}", conf);
 		super.prepare(conf, context);
-		this.to = (String) conf.get(XMPP_TO);
-		ConnectionConfiguration config = new ConnectionConfiguration((String) conf.get(XMPP_SERVER));
-		this.xmppConnection = new XMPPConnection(config);
-		try {
-			this.xmppConnection.connect();
-			this.xmppConnection.login((String) conf.get(XMPP_USER), (String) conf.get(XMPP_PASSWORD));
-		} catch (XMPPException e) {
-			LOG.warn("Error initializing XMPP Channel", e);
-		}
+		xmpp = new XMPPMock();
+		xmpp.connect(null);
 	}
 
+	@Override
 	public void execute(TridentTuple tuple, TridentCollector collector) {
-		Message msg = new Message(this.to, Type.normal);
-		msg.setBody(this.mapper.toMessageBody(tuple));
-		this.xmppConnection.sendPacket(msg);
+		String message = this.mapper.toMessageBody(tuple);
+		this.xmpp.send(message);
+	}
+
+	private static interface XMPP {
+		public void connect(Map conf);
+
+		public void send(String message);
+	}
+
+	public static class XMPPMock implements XMPP {
+		public void connect(Map conf) {
+
+		}
+
+		@Override
+		public void send(String message) {
+			LOG.info("got xmpp message:{}", message);
+
+		}
+
+	}
+
+	public static class XMPPReal implements XMPP {
+
+		private XMPPConnection xmppConnection;
+		private String to;
+
+		XMPPReal() {
+
+		}
+
+		public void connect(Map conf) {
+
+			String user = "storm@budreau.local";
+			String pass = "storm";
+			String server = "budreau.local";
+			String to = "tgoetz@budreau.local";
+
+			this.to = to;
+			ConnectionConfiguration config = new ConnectionConfiguration(server);
+			this.xmppConnection = new XMPPConnection(config);
+			try {
+				this.xmppConnection.connect();
+				this.xmppConnection.login(user, pass);
+			} catch (XMPPException e) {
+				LOG.warn("Error initializing XMPP Channel", e);
+			}
+		}
+
+		@Override
+		public void send(String message) {
+			Message msg = new Message(this.to, Type.normal);
+			msg.setBody(message);
+			this.xmppConnection.sendPacket(msg);
+
+		}
+
 	}
 }

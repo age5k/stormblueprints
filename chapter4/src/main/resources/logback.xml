@@ -1,12 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
-	<appender name="KAFKA" class="chapter4.logback.KafkaAppender">
-		<topic>log-analysis</topic>		
-		<bootstrapServers>192.168.88.130:9092</bootstrapServers>
+	<appender name="KAFKA" class="chapter4.logback.KafkaAppender">		
 		<formatter class="chapter4.logback.JsonFormatter">
-			<!-- Whether we expect the log message to be JSON encoded or not. If set 
-				to "false", the log message will be treated as a string, and wrapped in quotes. 
-				Otherwise it will be treated as a parseable JSON object. -->
 			<expectJson>false</expectJson>
 		</formatter>
 	</appender>
@@ -17,11 +12,15 @@
 		</encoder>
 	</appender>
 
-	<root level="debug">
+	<root level="ERROR">
 		<appender-ref ref="STDOUT" />		
 	</root>
-
-	<logger name="chapter4" additivity="false">
+	
+	<logger name="chapter4" additivity="true">
+		<level value="DEBUG" />
+	</logger>
+	
+	<logger name="chapter4.logback.RogueApplication" additivity="true">
 		<level value="DEBUG" />
 		<appender-ref ref="KAFKA" />
 	</logger>

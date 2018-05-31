@@ -11,11 +11,13 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import chapter4.Formatter;
 import chapter4.MessageFormatter;
+import chapter4.MyConfig;
 
 public class KafkaAppender extends AppenderBase<ILoggingEvent> {
-	private String topic;
+	private String topic = MyConfig.Topic;
 	private String zookeeperHost;
-	private String bootstrapServers;
+	private String bootstrapServers = MyConfig.Kafka_Host + ":" + MyConfig.Kafka_Port;
+
 	public String getBootstrapServers() {
 		return bootstrapServers;
 	}
@@ -59,11 +61,13 @@ public class KafkaAppender extends AppenderBase<ILoggingEvent> {
 			this.formatter = new MessageFormatter();
 		}
 		super.start();
-		Properties props = new Properties();		
+		Properties props = new Properties();
 		props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(ProducerConfig.CLIENT_ID_CONFIG, "logback-kafka-appender");
-		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class.getName());
-		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, org.apache.kafka.common.serialization.StringSerializer.class.getName());
+		props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+				org.apache.kafka.common.serialization.StringSerializer.class.getName());
+		props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+				org.apache.kafka.common.serialization.StringSerializer.class.getName());
 
 		this.producer = new KafkaProducer<String, String>(props);
 	}
@@ -76,7 +80,7 @@ public class KafkaAppender extends AppenderBase<ILoggingEvent> {
 
 	@Override
 	protected void append(ILoggingEvent event) {
-		String payload = this.formatter.format(event);		
+		String payload = this.formatter.format(event);
 		ProducerRecord<String, String> data = new ProducerRecord<String, String>(this.topic, payload);
 		this.producer.send(data);
 	}

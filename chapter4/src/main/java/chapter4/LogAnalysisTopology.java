@@ -14,6 +14,8 @@ import org.apache.storm.spout.SchemeAsMultiScheme;
 import org.apache.storm.trident.Stream;
 import org.apache.storm.trident.TridentTopology;
 import org.apache.storm.tuple.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import chapter4.EWMA.Time;
 import chapter4.operations.BooleanFilter;
@@ -22,15 +24,31 @@ import chapter4.operations.MovingAverageFunction;
 import chapter4.operations.ThresholdFilterFunction;
 import chapter4.operations.XMPPFunction;
 
+/**
+ * 
+ * Topology: <code>
+ * 
+ * 	[KfakaSport]---each--->[JsonProject]---project--->[MovingAverage]---->[ThreshHoldFilter]---->[XMPPNotifier]
+ * 
+ * </code>
+ * 
+ * 
+ * @author Wu
+ *
+ */
 public class LogAnalysisTopology {
+
+	private static final Logger LOG = LoggerFactory.getLogger(LogAnalysisTopology.class);
+
 	public static StormTopology buildTopology() {
 		TridentTopology topology = new TridentTopology();
-		Broker broker0 = new Broker("localhost");
+		Broker broker0 = new Broker(MyConfig.Kafka_Host, MyConfig.Kafka_Port);
+
 		GlobalPartitionInformation partitionInfo = new GlobalPartitionInformation("log-analysis");
 		partitionInfo.addPartition(0, broker0);
 		StaticHosts kafkaHosts = new StaticHosts(partitionInfo);
 
-		TridentKafkaConfig spoutConf = new TridentKafkaConfig(kafkaHosts, "log-analysis");
+		TridentKafkaConfig spoutConf = new TridentKafkaConfig(kafkaHosts, MyConfig.Topic);
 		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
 		// spoutConf.forceStartOffsetTime(-1);
 		spoutConf.startOffsetTime = -1;
@@ -53,16 +71,18 @@ public class LogAnalysisTopology {
 	}
 
 	public static void main(String[] args) throws Exception {
+		LOG.info("main enter.");
 		Config conf = new Config();
-		conf.put(XMPPFunction.XMPP_USER, "storm@budreau.local");
-		conf.put(XMPPFunction.XMPP_PASSWORD, "storm");
-		conf.put(XMPPFunction.XMPP_SERVER, "budreau.local");
-		conf.put(XMPPFunction.XMPP_TO, "tgoetz@budreau.local");
+
 		conf.setMaxSpoutPending(5);
 		if (args.length == 0) {
+			LOG.info("submit to local cluster.");
 			LocalCluster cluster = new LocalCluster();
 			cluster.submitTopology("log-analysis", conf, buildTopology());
+			LOG.info("done submit to local cluster.");
+
 		} else {
+			LOG.info("submit to remote cluster.");
 			conf.setNumWorkers(3);
 			StormSubmitter.submitTopology(args[0], conf, buildTopology());
 		}
